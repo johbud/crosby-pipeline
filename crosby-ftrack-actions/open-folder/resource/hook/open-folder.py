@@ -56,6 +56,8 @@ class OpenFolder(BaseAction):
             if s.isalnum() or s == "_":
                 fixed_name += s
 
+        fixed_name = fixed_name.lower()
+
         return fixed_name
 
 
@@ -73,7 +75,7 @@ class OpenFolder(BaseAction):
         if entity_type == "Project":
             project = self.session.query(f'Project where id is { entity_id }').first()
             path = os.path.join(prefix, project['name'])
-            
+
         elif entity_type == "TypedContext":
             task = self.session.query(f'Task where id is {entity_id}').first()
             
@@ -82,7 +84,7 @@ class OpenFolder(BaseAction):
             for p in parents:
                 parents_path = os.path.join(parents_path, self.fix_name(p['name']))
 
-            path = os.path.join(prefix, task['project']['name'], "02_work", parents_path, task['name'])
+            path = os.path.join(prefix, task['project']['name'], "02_work", parents_path, self.fix_name(task['name']))
             self.logger.info("Opening path: " + path)
 
         if not os.path.exists(path):

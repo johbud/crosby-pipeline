@@ -47,6 +47,8 @@ class MakeTaskFolder(BaseAction):
             if s.isalnum() or s == "_":
                 fixed_name += s
 
+        fixed_name = fixed_name.lower()
+
         return fixed_name
 
 
@@ -69,7 +71,7 @@ class MakeTaskFolder(BaseAction):
             self.logger.info('Using location {}'.format(location['name']))
             self.logger.info(f'Work drive: { prefix }')
 
-            path = os.path.join(prefix, project['name'], "02_work", parents_path , task['name'])
+            path = os.path.join(prefix, project['name'], "02_work", parents_path , self.fix_name(task['name']))
             
             self.logger.info(f'Path: {path}')
             
