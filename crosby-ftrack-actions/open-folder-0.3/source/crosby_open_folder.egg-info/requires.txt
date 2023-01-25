@@ -1,2 +1,0 @@
-ftrack-action-handler
-show-in-file-manager
