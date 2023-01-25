@@ -37,6 +37,19 @@ class MakeTaskFolder(BaseAction):
         return True
 
 
+    def fix_name(self, name: str)->str:
+        
+        fixed_name = ""
+
+        for s in name:
+            if s == " " or s == "-":
+                s = "_"
+            if s.isalnum() or s == "_":
+                fixed_name += s
+
+        return fixed_name
+
+
     def make_task_folder(self, project, task):
 
         location = self.session.pick_location()
@@ -46,7 +59,7 @@ class MakeTaskFolder(BaseAction):
         parents = self.get_parents(task)
         parents_path = ""
         for p in parents:
-            parents_path = os.path.join(parents_path, p['name'])
+            parents_path = os.path.join(parents_path, self.fix_name(p['name']))
             self.logger.info(f'Parent folders: { parents_path }')
 
 

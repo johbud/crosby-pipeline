@@ -46,6 +46,19 @@ class OpenFolder(BaseAction):
         return parents
 
 
+    def fix_name(self, name: str)->str:
+        
+        fixed_name = ""
+
+        for s in name:
+            if s == " " or s == "-":
+                s = "_"
+            if s.isalnum() or s == "_":
+                fixed_name += s
+
+        return fixed_name
+
+
     def launch(self, session, entities, event) -> dict:
 
         entity_type, entity_id = entities[0]
@@ -55,16 +68,19 @@ class OpenFolder(BaseAction):
 
         prefix = location.accessor.prefix
 
+        path: str = ""
+
         if entity_type == "Project":
             project = self.session.query(f'Project where id is { entity_id }').first()
             path = os.path.join(prefix, project['name'])
+            
         elif entity_type == "TypedContext":
             task = self.session.query(f'Task where id is {entity_id}').first()
             
             parents = self.get_parents(task)
             parents_path = ""
             for p in parents:
-                parents_path = os.path.join(parents_path, p['name'])
+                parents_path = os.path.join(parents_path, self.fix_name(p['name']))
 
             path = os.path.join(prefix, task['project']['name'], "02_work", parents_path, task['name'])
             self.logger.info("Opening path: " + path)
