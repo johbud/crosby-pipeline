@@ -1,0 +1,10 @@
+README.rst
+setup.py
+source/crosby_make_project_folder.egg-info/PKG-INFO
+source/crosby_make_project_folder.egg-info/SOURCES.txt
+source/crosby_make_project_folder.egg-info/dependency_links.txt
+source/crosby_make_project_folder.egg-info/not-zip-safe
+source/crosby_make_project_folder.egg-info/requires.txt
+source/crosby_make_project_folder.egg-info/top_level.txt
+source/make-project-folder/__init__.py
+source/make-project-folder/_version.py

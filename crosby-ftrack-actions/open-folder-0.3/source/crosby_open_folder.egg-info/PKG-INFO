@@ -1,0 +1,12 @@
+Metadata-Version: 1.2
+Name: crosby-open-folder
+Version: 0.3.0
+Summary: Open a folder for the selected task or project.
+Home-page: UNKNOWN
+Author: John Buddee
+Author-email: 
+License: Apache License (2.0)
+Description: UNKNOWN
+Keywords: ftrack,integration,connect,location,structure
+Platform: UNKNOWN
+Requires-Python: >=3, < 4.0

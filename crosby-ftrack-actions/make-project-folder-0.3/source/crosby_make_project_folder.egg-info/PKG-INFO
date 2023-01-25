@@ -1,0 +1,12 @@
+Metadata-Version: 1.2
+Name: crosby-make-project-folder
+Version: 0.0.0
+Summary: Make a folder for the selected project.
+Home-page: https://bitbucket.org/ftrack/ftrack-recipes
+Author: John Buddee
+Author-email: 
+License: Apache License (2.0)
+Description: UNKNOWN
+Keywords: ftrack,integration,connect,location,structure
+Platform: UNKNOWN
+Requires-Python: >=3, < 4.0
