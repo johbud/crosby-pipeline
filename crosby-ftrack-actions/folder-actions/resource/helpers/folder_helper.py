@@ -1,8 +1,16 @@
 import os
 import sys
 import json
+import ftrack_api
+import logging
 
-class FolderCreator():
+class FolderHelper():
+
+    def __init__(self, session, logger):
+        self.session = session
+        self.logger = logger
+
+    config_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "config", "folders.json")
 
     def iterate_and_create_folder(self, folders, _parent):
         for folder, children in folders.items():
@@ -39,13 +47,12 @@ class FolderCreator():
                 return make_folder
 
             print("Created: " + parent)
-            self.iterate_and_create_folder(j['folders'], parent)
+            self.iterate_and_create_folder(j['project_folders'], parent)
 
         return True
     
 
     def fix_name(self, name: str)->str:
-        
         fixed_name = ""
 
         for s in name:
@@ -86,7 +93,7 @@ class FolderCreator():
                 self.logger.error("Project folder does not exist.")
                 return Exception("Project folder does not exist.")
 
-            make_folder_result = self.iterate_and_create_folder(j['folders'], path)
+            make_folder_result = self.iterate_and_create_folder(j['task_folders'], path)
             
             if isinstance(make_folder_result, Exception):
                     return make_folder_result
@@ -94,9 +101,31 @@ class FolderCreator():
         return True
     
 
+    def get_parent(self, entity):
+        parent = self.session.query(f'select id from TypedContext where id is { entity["parent_id"]}').first()
+
+        return parent
+    
+
+    def get_parents(self, entity):
+        parents = []
+        
+        next = entity
+
+        while next:
+            parent = self.get_parent(next)
+            if parent:
+                print(parent['name'])
+                parents.append(parent)
+            next = parent
+
+        parents.reverse()
+        return parents
+
+
     def make_folder(self, path):
         try:
-            os.mkdir(path)
+            os.makedirs(path)
         except Exception as err:
             return err
         

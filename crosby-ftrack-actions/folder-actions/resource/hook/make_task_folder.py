@@ -2,12 +2,28 @@ import ftrack_api
 import logging
 import json
 import os
+import sys
+
 from ftrack_api import Session
 from ftrack_action_handler.action import BaseAction
 
-FTRACK_SERVER = "https://crosby.ftrackapp.com"
-FTRACK_API_KEY = "MjFlNThhNzgtYmI1Yy00NTYzLWJiODctYmFjNmViNDkwMzE1OjowZTNkMGJhMi1kZDI1LTQyNDUtOTZiMC0wOTUwNWU4NjA1ZWU"
-FTRACK_API_USER = "john.buddee@crosby.se"
+try:
+    from ..helpers.folder_helper import FolderHelper
+    from ..config.config import FTRACK_API_KEY, FTRACK_API_USER, FTRACK_SERVER
+except:
+    config_directory = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), '..', 'config')
+        )
+    sys.path.append(config_directory)
+
+    helpers_directory = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), '..', 'helpers')
+        )
+    sys.path.append(helpers_directory)
+
+    from folder_helper import FolderHelper
+    from config import FTRACK_API_KEY, FTRACK_API_USER, FTRACK_SERVER
+    
 
 class MakeTaskFolder(BaseAction):
 
@@ -16,58 +32,6 @@ class MakeTaskFolder(BaseAction):
     identifier = 'create.folder.task'
     description = 'Create a folder for the selected task.'
 
-    config_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "templates", "folders.json")
-
-
-    def iterate_and_create_folder(self, folders, _parent):
-        for folder, children in folders.items():
-            path = os.path.join(_parent, folder)
-
-            make_folder = self.make_folder(path)
-
-            if isinstance(make_folder, Exception):
-                return make_folder
-            
-            self.logger.info("Created: " + path)
-
-            if children:
-                make_children = self.iterate_and_create_folder(children, os.path.join(_parent, folder))
-                if isinstance(make_children, Exception):
-                    return make_folder
-        return True
-
-
-
-
-
-    def make_folder(self, path):
-        try:
-            os.makedirs(path)
-        except Exception as err:
-            return err
-        
-        return True
-    
-    def get_parent(self, entity):
-        parent = self.session.query(f'select id from TypedContext where id is { entity["parent_id"]}').first()
-
-        return parent
-
-    def get_parents(self, entity):
-        parents = []
-        
-        next = entity
-
-        while next:
-            parent = self.get_parent(next)
-            if parent:
-                print(parent['name'])
-                parents.append(parent)
-            next = parent
-
-        parents.reverse()
-        return parents
-
 
     def launch(self, session, entities, event) -> dict:
 
@@ -75,13 +39,15 @@ class MakeTaskFolder(BaseAction):
 
         task = self.session.query(f'Task where id is {entity_id}').one()
 
-        if not os.path.exists(self.config_file):
+        folder_helper = FolderHelper(session, self.logger)
+
+        if not os.path.exists(folder_helper.config_file):
             return {
                 "success": False, 
-                "message": f"Could not find template. {self.config_file}"
+                "message": f"Could not find template. {folder_helper.config_file}"
                 }
 
-        make_folders_result = self.make_task_folder(task['project'], task)
+        make_folders_result = folder_helper.make_task_folder(task['project'], task)
 
         if isinstance(make_folders_result, Exception):
             return {

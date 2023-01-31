@@ -20,11 +20,12 @@ SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
 README_PATH = os.path.join(ROOT_PATH, 'README.rst')
 RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
 HOOK_PATH = os.path.join(RESOURCE_PATH, 'hook')
-TEMPLATES_PATH = os.path.join(RESOURCE_PATH, 'templates')
+CONFIG_PATH = os.path.join(RESOURCE_PATH, 'config')
+HELPERS_PATH = os.path.join(RESOURCE_PATH, 'helpers')
 
 # Read version from source.
 with open(
-    os.path.join(SOURCE_PATH, 'make-task-folder', '_version.py')
+    os.path.join(SOURCE_PATH, 'folder-actions', '_version.py')
 ) as _version_file:
     VERSION = re.match(
         r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
@@ -32,7 +33,7 @@ with open(
 
 
 STAGING_PATH = os.path.join(
-    BUILD_PATH, 'make-task-folder-{0}'.format(VERSION)
+    BUILD_PATH, 'folder-actions-{0}'.format(VERSION)
 )
 
 
@@ -57,8 +58,10 @@ class BuildPlugin(Command):
         # Copy hook files
         shutil.copytree(HOOK_PATH, os.path.join(STAGING_PATH, 'hook'))
 
-        # Copy templates files
-        shutil.copytree(TEMPLATES_PATH, os.path.join(STAGING_PATH, 'templates'))
+        
+        shutil.copytree(CONFIG_PATH, os.path.join(STAGING_PATH, 'config'))
+
+        shutil.copytree(HELPERS_PATH, os.path.join(STAGING_PATH, 'helpers'))
 
         subprocess.check_call(
             [
@@ -73,7 +76,7 @@ class BuildPlugin(Command):
         )
 
         result_path = shutil.make_archive(
-            os.path.join(BUILD_PATH, 'make-task-folder-{0}'.format(VERSION)),
+            os.path.join(BUILD_PATH, 'folder-actions-{0}'.format(VERSION)),
             'zip',
             STAGING_PATH,
         )
@@ -81,9 +84,9 @@ class BuildPlugin(Command):
 
 # Call main setup.
 setup(
-    name='crosby-task-folder',
+    name='crosby-folder-actions',
     version=VERSION,
-    description='Make a folder for the selected task.',
+    description='Utility actions concerning folders.',
     long_description=open(README_PATH).read(),
     keywords='ftrack, integration, connect, location, structure',
     url='',
@@ -92,7 +95,7 @@ setup(
     license='Apache License (2.0)',
     packages=find_packages(SOURCE_PATH),
     package_dir={'': 'source'},
-    install_requires=['ftrack-action-handler'],
+    install_requires=['ftrack-action-handler', 'show-in-file-manager'],
     tests_require=[],
     zip_safe=False,
     cmdclass={
