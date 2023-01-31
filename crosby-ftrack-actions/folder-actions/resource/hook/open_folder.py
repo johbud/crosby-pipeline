@@ -13,10 +13,24 @@ from ftrack_api import Session
 from ftrack_action_handler.action import BaseAction
 from showinfm import show_in_file_manager
 
-FTRACK_SERVER = "https://crosby.ftrackapp.com"
-FTRACK_API_KEY = "MjFlNThhNzgtYmI1Yy00NTYzLWJiODctYmFjNmViNDkwMzE1OjowZTNkMGJhMi1kZDI1LTQyNDUtOTZiMC0wOTUwNWU4NjA1ZWU"
-FTRACK_API_USER = "john.buddee@crosby.se"
+try:
+    from ..helpers.folder_helper import FolderHelper
+    from ..config.config import FTRACK_API_KEY, FTRACK_API_USER, FTRACK_SERVER
+except:
+    config_directory = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), '..', 'config')
+        )
+    sys.path.append(config_directory)
 
+    helpers_directory = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), '..', 'helpers')
+        )
+    sys.path.append(helpers_directory)
+
+    from folder_helper import FolderHelper
+    from config import FTRACK_API_KEY, FTRACK_API_USER, FTRACK_SERVER
+    
+    
 class OpenFolder(BaseAction):
 
     
@@ -24,41 +38,6 @@ class OpenFolder(BaseAction):
     identifier = 'open.folder'
     description = 'Open a task or project folder.'
     icon = os.path.join(os.path.dirname(__file__), '..', "icons", "folder_find.png")
-
-    def get_parent(self, entity):
-        parent = self.session.query(f'select id from TypedContext where id is { entity["parent_id"]}').first()
-
-        return parent
-    
-
-    def get_parents(self, entity):
-        parents = []
-        
-        next = entity
-
-        while next:
-            parent = self.get_parent(next)
-            if parent:
-                parents.append(parent)
-            next = parent
-
-        parents.reverse()
-        return parents
-
-
-    def fix_name(self, name: str)->str:
-        
-        fixed_name = ""
-
-        for s in name:
-            if s == " " or s == "-":
-                s = "_"
-            if s.isalnum() or s == "_":
-                fixed_name += s
-
-        fixed_name = fixed_name.lower()
-
-        return fixed_name
 
 
     def launch(self, session, entities, event) -> dict:
@@ -72,6 +51,8 @@ class OpenFolder(BaseAction):
 
         path: str = ""
 
+        folder_helper = FolderHelper(session, self.logger)
+
         if entity_type == "Project":
             project = self.session.query(f'Project where id is { entity_id }').first()
             path = os.path.join(prefix, project['name'])
@@ -79,12 +60,12 @@ class OpenFolder(BaseAction):
         elif entity_type == "TypedContext":
             task = self.session.query(f'Task where id is {entity_id}').first()
             
-            parents = self.get_parents(task)
+            parents = folder_helper.get_parents(task)
             parents_path = ""
             for p in parents:
-                parents_path = os.path.join(parents_path, self.fix_name(p['name']))
+                parents_path = os.path.join(parents_path, folder_helper.fix_name(p['name']))
 
-            path = os.path.join(prefix, task['project']['name'], "02_work", parents_path, self.fix_name(task['name']))
+            path = os.path.join(prefix, task['project']['name'], "02_work", parents_path, folder_helper.fix_name(task['name']))
             self.logger.info("Opening path: " + path)
 
         if not os.path.exists(path):
