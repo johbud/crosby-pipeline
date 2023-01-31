@@ -1,0 +1,29 @@
+{
+    "drive": "F",
+
+    "folders": {
+
+        "00_preproduction": {},
+        "01_assets": {
+            "artwork": {},
+            "audio": {},
+            "cgi": {
+                "textures": {},
+                "models": {},
+                "caches": {}
+            },
+            "graphics": {},
+            "images": {},
+            "fonts": {},
+            "mov": {},
+            "renders": {
+                "3d": {},
+                "comp": {},
+                "grade": {}
+            }
+        },
+        "02_work": {},
+        "03_dailies": {},
+        "04_deliveries": {}
+    }
+}
