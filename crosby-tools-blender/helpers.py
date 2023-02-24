@@ -8,14 +8,14 @@ def make_render_context():
     render_context["filepath"] = bpy.data.filepath
     render_context["filename"] = os.path.split(render_context["filepath"])[1].replace(".blend", "")
 
-    assets_path = None
+    output_path = None
     for parent in Path(bpy.data.filepath).parents:
-        try_path = Path(os.path.join(parent,"01_assets"))        
+        try_path = Path(os.path.join(parent,"02_output"))        
         if try_path.exists():
-            assets_path = try_path
+            output_path = try_path
             break
     
-    if assets_path is None:
+    if output_path is None:
         return None
     
     dailies_path = None
@@ -31,14 +31,15 @@ def make_render_context():
 
     render_context["scenename"] = render_context["filename"][:-5]
     render_context["version"] = render_context["filename"][-4:]
-    render_context["render_path"] = os.path.join(assets_path, "renders", "3d", render_context["scenename"], render_context["version"], render_context["filename"] + "_")
-    render_context["render_path_passes"] = os.path.join(assets_path, "renders", "3d", render_context["scenename"], render_context["version"], "passes")
+    render_context['render_folder'] = os.path.join(output_path, render_context['scenename'], render_context['version'])
+    render_context["render_path"] = os.path.join(output_path, render_context["scenename"], render_context["version"], render_context["filename"] + "_")
+    render_context["render_path_passes"] = os.path.join(output_path, render_context["scenename"], render_context["version"])
     render_context["dailies_path"] = dailies_path
 
-    if not os.path.exists(os.path.join(assets_path, "renders", "3d", render_context["scenename"])):
-        os.mkdir(os.path.join(assets_path, "renders", "3d", render_context["scenename"]))
-    if not os.path.exists((os.path.join(assets_path, "renders", "3d", render_context["scenename"], render_context["version"]))):
-        os.mkdir(os.path.join(assets_path, "renders", "3d", render_context["scenename"], render_context["version"]))
+    if not os.path.exists(os.path.join(output_path, render_context["scenename"])):
+        os.mkdir(os.path.join(output_path, render_context["scenename"]))
+    if not os.path.exists((os.path.join(output_path, render_context["scenename"], render_context["version"]))):
+        os.mkdir(os.path.join(output_path, render_context["scenename"], render_context["version"]))
 
     return render_context
 

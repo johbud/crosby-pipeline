@@ -57,7 +57,13 @@ class CROSBY_OT_versionup(Operator):
             return {'CANCELLED'}
         
         render_context = make_render_context()
+
+        if render_context is None:
+            ShowMessageBox("Could not find render context.")
+            return {'CANCELLED'}
+
         folder_path = os.path.split(render_context["render_path"])[0]
+        
         if not os.path.exists(folder_path):
             os.mkdir(folder_path)
         

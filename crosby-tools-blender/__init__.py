@@ -1,8 +1,8 @@
 bl_info = {
     "name": "Crosby Menu",
     "author": "Roberth S, John B",
-    "version": (1, 3),
-    "blender": (3, 3, 1),
+    "version": (1, 5),
+    "blender": (3, 4, 0),
     "location": "View3D > Main panel > Crosby",
     "description": "Collection of custom tools",
     "warning": "",

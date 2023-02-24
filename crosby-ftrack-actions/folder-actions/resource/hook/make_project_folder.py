@@ -82,6 +82,26 @@ class MakeProjectFolder(BaseAction):
 
         else:
             return False  
+        
+        
+    def register(self):
+        '''Register action.'''
+        self.session.event_hub.subscribe(
+            'topic=ftrack.action.discover and source.user.username={0}'.format(
+                self.session.api_user
+            ),
+            self._discover
+        )
+
+        self.session.event_hub.subscribe(
+            'topic=ftrack.action.launch and data.actionIdentifier={0} and '
+            'source.user.username={1}'.format(
+                self.identifier,
+                self.session.api_user
+            ),
+            self._launch
+        )
+
 
 
 def register(session, **kw) -> None:

@@ -1,6 +1,7 @@
 import bpy
 import os
 from bpy.types import Panel, Operator
+from . helpers import make_render_context
    
         
 # Script for setting renderpaths and flamenco settings/paths
@@ -14,25 +15,8 @@ class CROSBY_OT_setrenderstand(Operator):
         #bpy.ops.flamenco.fetch_job_types(1,)
         #bpy.context.scene.flamenco_job_type = 'crosby-render'
 
-        path = bpy.data.filepath #Full project path
-        pathsplit = path.rsplit("\\", -1)
-        projectname = pathsplit[1]
-        
-        filename = bpy.path.basename(bpy.context.blend_data.filepath)
-        filterend = filename[-9:] # keeps the last 9 characters in the string
-        version = filterend.replace(".blend", "") # removes .blend from the version number
-        
-        scenefilter = filename.replace(".blend", "") # removes .blend from the scenename
-        scenename = scenefilter[:-5]
-        
-        renderpath = "G:\\" + projectname + "\\" + "01_assets" + "\\" + "renders" "\\" + "3d" + "\\" + scenename + "\\" + "v" + version + "\\" + scenename + "_v" + version + "_"
-        nodepath = "G:\\" + projectname + "\\" + "01_assets" + "\\" + "renders" "\\" + "3d" + "\\" + scenename + "\\" + "v" + version + "\\Passes\\"
-        
-        checkversion = "G:\\" + projectname + "\\" + "01_assets" + "\\" + "renders" "\\" + "3d" + "\\" + scenename + "\\" + "v" + version
+        render_context = make_render_context()
 
-        checkpath = bpy.path.abspath(checkversion)
-        rootrender = "G:\\" + projectname + "\\" + "01_assets" + "\\" + "renders" "\\" + "3d" + "\\" + scenename + "\\" + "v" + version + "\\"
-        
         def ShowMessageBox(message = "", title = "Crosby Tools", icon = 'INFO'):
 
             def draw(self, context):
@@ -42,16 +26,11 @@ class CROSBY_OT_setrenderstand(Operator):
 
      
         # Check whether the specified path exists or not
-        isExist = os.path.exists(checkpath)
-        if not isExist:
-
-            #newpath = r'C:\Program Files\arbitrary' 
-            os.makedirs(checkpath)
-            
-
+        if not os.path.exists(render_context['render_folder']):
+            os.makedirs(render_context['render_folder'])
             
         #sets renderpath and filename
-        bpy.context.scene.render.filepath = renderpath
+        bpy.context.scene.render.filepath = render_context['render_path']
 
         #sets paths for all composite node outputs
         scene = bpy.context.scene
@@ -61,7 +40,7 @@ class CROSBY_OT_setrenderstand(Operator):
                     
                     if node.label != "":
                         
-                        node.base_path = nodepath + node.label + "_" + "v" + version + "_"
+                        node.base_path = os.path.join(render_context["render_path_passes"], node.label) 
                         
                         ShowMessageBox("Paths set, COMP ON")
                         self.report({'INFO'}, "Paths set, COMP ON")

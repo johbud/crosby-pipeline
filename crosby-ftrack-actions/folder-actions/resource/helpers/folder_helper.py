@@ -12,12 +12,18 @@ class FolderHelper():
 
     config_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "config", "folders.json")
 
-    def get_prefix(config):
+    def get_prefix(self, config):
+
+        if config is None:
+            with open(self.config_file) as f:
+                config = json.load(f)
+                
+        if sys.platform == "darwin":
+            return config['drive_macos']
+        
         if sys.platform == "win32":
             return config['drive_win']
-        else:
-            return None
-        
+           
 
     def iterate_and_create_folder(self, folders, _parent):
         for folder, children in folders.items():
@@ -45,7 +51,9 @@ class FolderHelper():
 
         with open(self.config_file) as f:
             j = json.load(f)
-            prefix = j['drive_win']
+
+            prefix = self.get_prefix(j)
+            self.logger.info("Prefix: " + prefix)
             parent = os.path.join(prefix, project['name'])
             make_folder = self.make_folder(parent)
 
@@ -62,6 +70,12 @@ class FolderHelper():
         fixed_name = ""
 
         for s in name:
+            if s == "å" or s == "Å":
+                s = "a"
+            if s == "ä" or s == "Ä":
+                s = "a"
+            if s == "ö" or s == "Ö":
+                s = "o"
             if s == " " or s == "-":
                 s = "_"
             if s.isalnum() or s == "_":
@@ -87,7 +101,7 @@ class FolderHelper():
         with open(self.config_file) as f:
             j = json.load(f)
 
-            prefix = j['drive_win']
+            prefix = self.get_prefix(j)
             
             #self.logger.info('Using location {}'.format(location['name']))
             self.logger.info(f'Work drive: { prefix }')
