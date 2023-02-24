@@ -12,6 +12,13 @@ class FolderHelper():
 
     config_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "config", "folders.json")
 
+    def get_prefix(config):
+        if sys.platform == "win32":
+            return config['drive_win']
+        else:
+            return None
+        
+
     def iterate_and_create_folder(self, folders, _parent):
         for folder, children in folders.items():
             path = os.path.join(_parent, folder)
@@ -32,14 +39,13 @@ class FolderHelper():
     
     def make_project_folder(self, project):
         
-        location = self.session.pick_location()
-        self.logger.info('Using location {}'.format(location['name']))
-
-        prefix = location.accessor.prefix
+        #location = self.session.pick_location()
+        #self.logger.info('Using location {}'.format(location['name']))
+        #prefix = location.accessor.prefix
 
         with open(self.config_file) as f:
             j = json.load(f)
-
+            prefix = j['drive_win']
             parent = os.path.join(prefix, project['name'])
             make_folder = self.make_folder(parent)
 
@@ -68,9 +74,8 @@ class FolderHelper():
 
     def make_task_folder(self, project, task):
 
-        location = self.session.pick_location()
-
-        prefix = location.accessor.prefix
+        #location = self.session.pick_location()
+        #prefix = location.accessor.prefix
 
         parents = self.get_parents(task)
         parents_path = ""
@@ -82,7 +87,9 @@ class FolderHelper():
         with open(self.config_file) as f:
             j = json.load(f)
 
-            self.logger.info('Using location {}'.format(location['name']))
+            prefix = j['drive_win']
+            
+            #self.logger.info('Using location {}'.format(location['name']))
             self.logger.info(f'Work drive: { prefix }')
 
             path = os.path.join(prefix, project['name'], "02_work", parents_path , self.fix_name(task['name']))
