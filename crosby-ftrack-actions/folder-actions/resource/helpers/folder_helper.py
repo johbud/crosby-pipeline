@@ -24,6 +24,34 @@ class FolderHelper():
         if sys.platform == "win32":
             return config['drive_win']
            
+    def make_task_path(self, task) -> str:
+        
+        with open(self.config_file) as f:
+            j = json.load(f)
+            prefix = self.get_prefix(j)
+
+        parents = self.get_parents(task)
+        parents_path = ""
+
+        for p in parents:
+            parents_path = os.path.join(parents_path, self.fix_name(p['name']))
+            self.logger.info(f'Parent folders: { parents_path }')
+        
+        project = task['project']
+        path = os.path.join(prefix, project['name'], "02_work", parents_path , self.fix_name(task['name']))
+
+        return path
+
+
+    def rename_folder(self, path, new_name):
+        new_path = os.path.join(os.path.split(path)[1], new_name)
+        try:
+            os.rename(path, new_path)
+        except Exception as err:
+            return err
+
+        return True
+
 
     def iterate_and_create_folder(self, folders, _parent):
         for folder, children in folders.items():
