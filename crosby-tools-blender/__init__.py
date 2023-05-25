@@ -1,8 +1,8 @@
 bl_info = {
     "name": "Crosby Menu",
     "author": "Roberth S, John B",
-    "version": (1, 5),
-    "blender": (3, 4, 0),
+    "version": (1, 8),
+    "blender": (3, 5, 0),
     "location": "View3D > Main panel > Crosby",
     "description": "Collection of custom tools",
     "warning": "",
@@ -24,6 +24,7 @@ from . version_up import CROSBY_OT_versionup
 from . current_renderpasses import CROSBY_OT_current_renderpasses
 from . renderstandard import CROSBY_OT_setrenderstand
 from . lightgroups import CROSBY_OT_lightgroups
+from . create_folders import CROSBY_OT_createfolder
  
 class ADDONNAME_PT_main_panel(Panel):
     bl_label = "Crosby Tools"
@@ -46,8 +47,9 @@ class ADDONNAME_PT_main_panel(Panel):
         layout.operator("addonname.myop_versionup")
         layout.operator("addonname.myop_setrenderstand")
         layout.operator("addonname.myop_lightgroups")
+        layout.operator("addonname.myop_createfolders")
 
-classes = [ADDONNAME_PT_main_panel, CROSBY_OT_validateimages, CROSBY_OT_packimages, CROSBY_OT_validatevolumes, CROSBY_OT_validatecache, CROSBY_OT_purgedata, CROSBY_OT_playblast, CROSBY_OT_renderpasses, CROSBY_OT_versionup, CROSBY_OT_current_renderpasses, CROSBY_OT_setrenderstand, CROSBY_OT_lightgroups]
+classes = [ADDONNAME_PT_main_panel, CROSBY_OT_validateimages, CROSBY_OT_packimages, CROSBY_OT_validatevolumes, CROSBY_OT_validatecache, CROSBY_OT_purgedata, CROSBY_OT_playblast, CROSBY_OT_renderpasses, CROSBY_OT_versionup, CROSBY_OT_current_renderpasses, CROSBY_OT_setrenderstand, CROSBY_OT_lightgroups, CROSBY_OT_createfolder]
  
 def register():
     for cls in classes:

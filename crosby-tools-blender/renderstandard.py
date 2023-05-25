@@ -34,14 +34,19 @@ class CROSBY_OT_setrenderstand(Operator):
 
         #sets paths for all composite node outputs
         scene = bpy.context.scene
-        if bpy.context.scene.use_nodes is not False:
+        
+        if bpy.context.scene.use_nodes:
             for node in scene.node_tree.nodes:
                 if node.type == 'OUTPUT_FILE':
-                    
                     if node.label != "":
-                        
-                        node.base_path = os.path.join(render_context["render_path_passes"], node.label) 
-                        
+                        filename_split = render_context["filename"].split("_")
+                        version = filename_split.pop()
+                        filename = ""
+                        for part in filename_split:
+                            filename += part + "_"
+                        filename += node.label + "_" + version + "_"
+
+                        node.base_path = os.path.join(render_context["render_path_passes"], filename)                        
                         ShowMessageBox("Paths set, COMP ON")
                         self.report({'INFO'}, "Paths set, COMP ON")
                         

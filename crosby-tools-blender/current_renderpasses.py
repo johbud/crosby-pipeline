@@ -10,30 +10,41 @@ class CROSBY_OT_current_renderpasses(Operator):
 
     def make_nodes(self, tree, render_context, viewlayer=None):
 
-        currentlayername = bpy.context.view_layer.name
-        filename = render_context["filename"]
-        if viewlayer:
-            filename = filename + "_" + viewlayer.name
+        filename_split = render_context["filename"].split("_")
+        version = filename_split.pop()
+        filename = ""
+        for part in filename_split:
+            filename += part + "_"
 
         node_output_rgb = tree.nodes.new(type="CompositorNodeOutputFile")
         node_output_rgb.format.file_format = "OPEN_EXR_MULTILAYER"
         node_output_rgb.format.color_mode = "RGBA"
         node_output_rgb.format.color_depth = "16"
-        node_output_rgb.base_path = os.path.join(render_context["render_path_passes"], render_context["filename"]+"_RGB_")
-        node_output_rgb.label = currentlayername
+        node_output_rgb.base_path = os.path.join(render_context["render_path_passes"], filename+"RGB_"+version+"_")
+        if viewlayer:
+            node_output_rgb.label = viewlayer.name + "_RGB"
+        else:
+            node_output_rgb.label = "RGB"
         
-        #node_output_data = tree.nodes.new(type="CompositorNodeOutputFile")
-        #node_output_data.format.file_format = "OPEN_EXR_MULTILAYER"
-        #node_output_data.format.color_mode = "RGBA"
-        #node_output_data.format.color_depth = "32"
-        #node_output_data.base_path = os.path.join(render_context["render_path_passes"], render_context["filename"]+"_DATA_")
+        node_output_data = tree.nodes.new(type="CompositorNodeOutputFile")
+        node_output_data.format.file_format = "OPEN_EXR_MULTILAYER"
+        node_output_data.format.color_mode = "RGBA"
+        node_output_data.format.color_depth = "32"
+        node_output_data.base_path = os.path.join(render_context["render_path_passes"], filename+"DATA_"+version+"_")
+        if viewlayer:
+            node_output_data.label = viewlayer.name + "_DATA"
+        else:
+            node_output_data.label = "DATA"
 
         node_output_crypto = tree.nodes.new(type="CompositorNodeOutputFile")
         node_output_crypto.format.file_format = "OPEN_EXR_MULTILAYER"
         node_output_crypto.format.color_mode = "RGBA"
         node_output_crypto.format.color_depth = "32"
-        node_output_crypto.base_path = os.path.join(render_context["render_path_passes"], render_context["filename"]+"_CRYPTO_")
-        node_output_crypto.label = currentlayername + "_Crypto"
+        node_output_crypto.base_path = os.path.join(render_context["render_path_passes"], filename+"CRYPTO_"+version+"_")
+        if viewlayer:
+            node_output_crypto.label = viewlayer.name + "_CRYPTO"
+        else:
+            node_output_crypto.label = "CRYPTO"
 
         node_composite = tree.nodes.new(type="CompositorNodeComposite")
 
@@ -50,14 +61,15 @@ class CROSBY_OT_current_renderpasses(Operator):
                 if "Crypto" in output.name:
                     input = node_output_crypto.file_slots.new(output.name)
                     links.new(input, output)
-                else:
+                elif output.type == "RGBA":
                     if output.name == "Image":
                         input = node_output_rgb.file_slots.new("rgba")
                     else:
                         input = node_output_rgb.file_slots.new(output.name)
                     links.new(input, output)
-               
-        
+                else:
+                    input = node_output_data.file_slots.new(output.name)
+                    links.new(input, output)
         return
 
 
