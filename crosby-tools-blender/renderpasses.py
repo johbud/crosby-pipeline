@@ -1,21 +1,21 @@
 import bpy
 import os
 from bpy.types import Operator
-from . helpers import make_render_context, ShowMessageBox
+from .helpers import make_render_context, ShowMessageBox
+
 
 class CROSBY_OT_renderpasses(Operator):
-    bl_label = "Set renderpasses"
+    bl_label = "Add all AOV:s"
     bl_idname = "addonname.myop_renderpasses"
     bl_description = "Set renderpasses and wire up compositor nodes for rendering."
 
     def make_nodes(self, tree, render_context, viewlayer=None):
-
         filename_split = render_context["filename"].split("_")
         version = filename_split.pop()
         filename = ""
         for part in filename_split:
             filename += part + "_"
-        
+
         if viewlayer:
             filename += viewlayer.name
 
@@ -23,7 +23,9 @@ class CROSBY_OT_renderpasses(Operator):
         node_output_rgb.format.file_format = "OPEN_EXR_MULTILAYER"
         node_output_rgb.format.color_mode = "RGBA"
         node_output_rgb.format.color_depth = "16"
-        node_output_rgb.base_path = os.path.join(render_context["render_path_passes"], filename+"RGB_"+version+"_")
+        node_output_rgb.base_path = os.path.join(
+            render_context["render_path_passes"], filename + "RGB_" + version + "_"
+        )
         if viewlayer:
             node_output_rgb.label = viewlayer.name + "_RGB"
         else:
@@ -33,7 +35,9 @@ class CROSBY_OT_renderpasses(Operator):
         node_output_data.format.file_format = "OPEN_EXR_MULTILAYER"
         node_output_data.format.color_mode = "RGBA"
         node_output_data.format.color_depth = "32"
-        node_output_data.base_path = os.path.join(render_context["render_path_passes"], filename+"DATA_"+version+"_")
+        node_output_data.base_path = os.path.join(
+            render_context["render_path_passes"], filename + "DATA_" + version + "_"
+        )
         if viewlayer:
             node_output_data.label = viewlayer.name + "_DATA"
         else:
@@ -43,7 +47,9 @@ class CROSBY_OT_renderpasses(Operator):
         node_output_crypto.format.file_format = "OPEN_EXR_MULTILAYER"
         node_output_crypto.format.color_mode = "RGBA"
         node_output_crypto.format.color_depth = "32"
-        node_output_crypto.base_path = os.path.join(render_context["render_path_passes"], filename+"CRYPTO_"+version+"_")
+        node_output_crypto.base_path = os.path.join(
+            render_context["render_path_passes"], filename + "CRYPTO_" + version + "_"
+        )
         if viewlayer:
             node_output_crypto.label = viewlayer.name + "_CRYPTO"
         else:
@@ -76,25 +82,23 @@ class CROSBY_OT_renderpasses(Operator):
         for slot in node_output_rgb.file_slots:
             if "Deprecated" in slot.name:
                 node_output_rgb.file_slots.remove(slot)
-        
+
         return
 
     def execute(self, context):
-
         render_context = make_render_context()
 
         if render_context is None:
             ShowMessageBox("Could not find render context. Cancelled.")
-            return {'CANCELLED'}
+            return {"CANCELLED"}
 
         bpy.context.scene.use_nodes = True
         tree = bpy.context.scene.node_tree
-        
+
         bpy.context.scene.render.engine = "CYCLES"
 
         for layer in bpy.context.scene.view_layers:
-            
-            # RGB passes            
+            # RGB passes
             layer.use_pass_combined = True
             layer.use_pass_diffuse_direct = True
             layer.use_pass_diffuse_indirect = True
@@ -129,17 +133,17 @@ class CROSBY_OT_renderpasses(Operator):
             os.mkdir(folder_path)
 
         if len(bpy.context.scene.view_layers) < 2:
-            try: 
+            try:
                 self.make_nodes(tree, render_context)
             except:
                 ShowMessageBox("Failed to set outputs.")
-        else: 
+        else:
             for layer in bpy.context.scene.view_layers:
                 try:
                     self.make_nodes(tree, render_context, layer)
                 except:
                     ShowMessageBox("Failed to set outputs for layer: " + layer.name)
-        
+
         ShowMessageBox("Successfully set renderpasses and outputs.")
-        
-        return {'FINISHED'}
+
+        return {"FINISHED"}
