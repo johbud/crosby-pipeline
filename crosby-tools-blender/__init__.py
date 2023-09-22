@@ -13,12 +13,13 @@ from .current_renderpasses import CROSBY_OT_current_renderpasses
 from .renderstandard import CROSBY_OT_setrenderstand
 from .lightgroups import CROSBY_OT_lightgroups
 from .create_folders import CROSBY_OT_createfolder
+from .denoise_aovs import CROSBY_OT_denoise_aovs
 
 
 bl_info = {
     "name": "Crosby Menu",
     "author": "Roberth S, John B",
-    "version": (1, 9),
+    "version": (1, 10),
     "blender": (3, 5, 0),
     "location": "View3D > Main panel > Crosby",
     "description": "Collection of custom tools",
@@ -51,6 +52,7 @@ class ADDONNAME_PT_main_panel(Panel):
         aov_box.operator("addonname.myop_renderpasses")
         aov_box.operator("addonname.myop_current_renderpasses")
         aov_box.operator("addonname.myop_lightgroups")
+        aov_box.operator("addonname.myop_denoise_aovs")
 
         paths_box = layout.box()
         paths_box.label(text="Paths")
@@ -77,6 +79,7 @@ classes = [
     CROSBY_OT_setrenderstand,
     CROSBY_OT_lightgroups,
     CROSBY_OT_createfolder,
+    CROSBY_OT_denoise_aovs,
 ]
 
 
